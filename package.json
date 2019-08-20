@@ -1,0 +1,25 @@
+{
+  "name": "Graph-Query",
+  "version": "1.0.0",
+  "description": "Using Graphql and Node to do API queries",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/team-george/Graph-Query.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/team-george/Graph-Query/issues"
+  },
+  "homepage": "https://github.com/team-george/Graph-Query#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "graphql": "^14.4.2"
+  }
+}
