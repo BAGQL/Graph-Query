@@ -1,9 +1,26 @@
 'use strict';
 
+/** NODE PACKAGES
+ * Mongoose
+ * Dotenv
+ * Apollo-Server
+ * Node-Fetch
+ * Lodash
+ */
 const { ApolloServer, gql } = require('apollo-server');
 const fetch = require('node-fetch');
 const { find, filter } = require('lodash');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
+/** Defines our options for the mongoose database*/
+const options = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+};
+
+/** Creates new connection to mongoose */
+mongoose.connect(process.env.MONGODB_URI, options);
 // Dummy data 
 const books = [
   {
@@ -17,12 +34,10 @@ const books = [
 ];
 
 // Type declaration (in gql lingo)
-
 const typeDefs = gql`
   # Comments in GraphQL are defined with the hash (#) symbol.
 
   # This "Book" type can be used in other type declarations.
-
   type Book {
     id: ID
     title: String
@@ -53,8 +68,7 @@ const typeDefs = gql`
   }
 `;
 
-// Root Resolver Function 
-
+// Root Resolver Function
 const baseURL = `https://www.googleapis.com/books/v1/volumes?q=+intitle:`;
 
 
@@ -82,12 +96,13 @@ const resolvers = {
 // };
 
 // Instantiation of our server
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  apiKey: process.env.ENGINE_API_KEY,
+  typeDefs,
+  resolvers
+});
 
 // Call the listen method on the instantiation of our server
 server.listen().then(({ url }) => {
   console.log(`GraphQL API server ready at ${url}`);
 });
-
-
-
