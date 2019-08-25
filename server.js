@@ -50,10 +50,20 @@ db.on('error', err => {
 const typeDefs = gql`
   # Comments in GraphQL are defined with the hash (#) symbol.
   # This "Book" type can be used in other type declarations.
+
   type Book {
     id: ID
-    posts: [Post!]!
+    etag: ID
+    volumeInfo: VolumeInfo!
+    posts: Post!
   }
+
+  type VolumeInfo {
+    title: String
+    authors: [String]
+    description: String
+  }
+
   type Post {
     title: String
     author: String
@@ -61,14 +71,17 @@ const typeDefs = gql`
     image_link: String
     ISBN: ID
   }
+
   # The "Query" type is the root of all GraphQL queries.
   # (A "Mutation" type will be covered later on.)
+
   type Query {
-    books: [Book!]
+    books: [Book!]!
     book(title: String!): Book
     posts: [Post!]!
     post(id: ID!): Post
   }
+
   type Mutation {
     createBook(name: String!): Book!
     updateBook(title: String!, name: String!): Book
@@ -90,12 +103,16 @@ const baseURL = `https://www.googleapis.com/books/v1/volumes?q=+intitle:`;
 const resolvers = {
   Query: {
     books: () => {
-    // let userSearch = document.getElementsByClassName('submitBox').value;
-    // return fetch(`${baseURL}` + userSearch).then(res => res.json()).then((res) => { return res.rows; });
-      return fetch(`https://www.googleapis.com/books/v1/volumes?q=+intitle:harrypotter`).then(res => res.json()).then((res) => { 
+      let userInput = process.argv.slice(2);
+      // let userSearch = document.getElementsByClassName('submitBox').value;
+      return fetch(`${baseURL}` + userInput).then(res => res.json()).then((res) => {
         console.log(res);
         console.log(res.items);
         return res.items; });
+      // return fetch(`https://www.googleapis.com/books/v1/volumes?q=+intitle:harrypotter`).then(res => res.json()).then((res) => { 
+      //   console.log(res);
+      //   console.log(res.items);
+      //   return res.items; });
     },
     book: (parent, args) => {
       const { id } = args;
