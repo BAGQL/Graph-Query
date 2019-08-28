@@ -12,27 +12,9 @@ const { RestLink } = require('apollo-link-rest');
 const { InMemoryCache } = require('apollo-cache-inmemory');
 const fetch = require('node-fetch');
 global.Headers = fetch.Headers;
-const mongoose = require('mongoose');
 
 require('dotenv').config();
 
-/** Defines our options for the mongoose database*/
-const options = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-};
-
-/** Creates new connection to mongoose */
-mongoose.connect(process.env.MONGODB_URI, options);
-
-const db = mongoose.connection;
-
-db.once('open', _ => {
-  console.log('Database connected:', process.env.MONGODB_URI);
-});
-db.on('error', err => {
-  console.error('connection error:', err);
-});
 
 // Dummy data 
 // const books = [
@@ -92,7 +74,7 @@ const typeDefs = gql`
 
 // RestLink
 const restLink = new RestLink({
-  uri: 'https://www.googleapis.com/books/v1/volumes?q=+intitle:harrypotter',
+  uri: 'https://www.googleapis.com/books/v1/volumes?q=+intitle:',
 });
 
 // Root Resolver Function
@@ -106,17 +88,13 @@ const resolvers = {
       let userInput = process.argv.slice(2);
       // let userSearch = document.getElementsByClassName('submitBox').value;
       return fetch(`${baseURL}` + userInput).then(res => res.json()).then((res) => {
-        console.log(res);
         console.log(res.items);
         return res.items; });
-      // return fetch(`https://www.googleapis.com/books/v1/volumes?q=+intitle:harrypotter`).then(res => res.json()).then((res) => { 
-      //   console.log(res);
-      //   console.log(res.items);
-      //   return res.items; });
+
     },
     book: (parent, args) => {
       const { id } = args;
-      return fetch('https://www.googleapis.com/books/v1/volumes?q=+intitle:harrypotter').then(res => res.json());
+      return fetch('https://www.googleapis.com/books/v1/volumes?q=+intitle:').then(res => res.json());
     },
     posts: () => {
       return fetch(`${baseURL}/posts`).then(res => res.json());
