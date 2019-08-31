@@ -51,7 +51,6 @@ const typeDefs = gql`
   }
 
   # The "Query" type is the root of all GraphQL queries.
-  # (A "Mutation" type will be covered later on.)
 
   type Query {
     books: [Book!]!
@@ -76,12 +75,11 @@ const restLink = new RestLink({
 const resolvers = {
   Query: {
     books: () => {
-      let terminalInput = '{ books { _id title author } }';
+      let terminalInput = '{ books { _id title author description} }';
+      // let terminalInput = '{ books { title:`${ter}` } }';
       // let userSearch = document.getElementsByClassName('submitBox').value;
       return fetch(`${process.env.DATABASEURL}` + terminalInput).then(res => res.json()).then((res) => {
-        console.log('working!');
-        console.log('1', res);
-        console.log('2', res.data);
+        console.log('We are successfully retrieving data');
         console.log('3', res.data.books);
         return res.books;
       });
