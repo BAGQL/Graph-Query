@@ -71,7 +71,7 @@ const restLink = new RestLink({
 const resolvers = {
   Query: {
     books: () => {
-      let terminalInput = '{ books { _id title author description} }';
+      let terminalInput =  process.argv.slice(2);
       return fetch(`${process.env.DATABASEURL}` + terminalInput).then(res => res.json()).then((res) => {
         console.log('We are successfully retrieving data');
         console.log('3', res.data.books);

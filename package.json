@@ -4,7 +4,7 @@
   "description": "Using Graphql and Node to do API queries",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose --coverage"
   },
   "repository": {
     "type": "git",
@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/team-george/Graph-Query#readme",
   "dependencies": {
+    "apollo-boost": "^0.4.4",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.4",
     "apollo-link": "^1.2.12",
@@ -31,6 +32,7 @@
     "graphql": "^14.4.2",
     "graphql-anywhere": "^4.2.4",
     "graphql-tag": "^2.10.1",
+    "jest": "^24.9.0",
     "mongoose": "^5.6.11",
     "multer": "^1.4.2",
     "node-fetch": "^2.6.0",
