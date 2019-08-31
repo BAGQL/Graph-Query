@@ -1,30 +1,26 @@
 'use strict';
 
 /** NODE PACKAGES
+ * Apollo-Cache-Inmemory
+ * Apollo-Link-REST
  * Apollo-Server
+ * Express
+ * Express-GraphQL
  * Node-Fetch
  * Dotenv
 */
-
-// testing below
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const multer = require('multer');
-const graphqlHTTP = require('express-graphql');
-const app = express();
-// testing above
-const { ApolloServer, gql } = require('apollo-server');
-const { RestLink } = require('apollo-link-rest');
 const { InMemoryCache } = require('apollo-cache-inmemory');
-const { ApolloClient } = require('apollo-client');
-const { HttpLink } = require('apollo-link-http');
+const { RestLink } = require('apollo-link-rest');
+const { ApolloServer, gql } = require('apollo-server');
+const express = require('express');
+const graphqlHTTP = require('express-graphql');
 const fetch = require('node-fetch');
+const app = express();
 global.fetch = fetch;
 global.Headers = fetch.Headers;
 require('dotenv').config();
 
-// Type declaration (in gql lingo)
+/** Type declaration (in gql lingo) */
 const typeDefs = gql`
   # Comments in GraphQL are defined with the hash (#) symbol.
   # This "Book" type can be used in other type declarations.
@@ -66,76 +62,34 @@ const typeDefs = gql`
   }
 `;
 
-// RestLink
+/** RestLink */
 const restLink = new RestLink({
   uri: 'https://www.googleapis.com/books/v1/volumes?q=+intitle:',
 });
 
-// Root Resolver Function
+/** Root Resolver Function */
 const resolvers = {
   Query: {
     books: () => {
       let terminalInput = '{ books { _id title author description} }';
-      // let terminalInput = '{ books { title:`${ter}` } }';
-      // let userSearch = document.getElementsByClassName('submitBox').value;
       return fetch(`${process.env.DATABASEURL}` + terminalInput).then(res => res.json()).then((res) => {
         console.log('We are successfully retrieving data');
         console.log('3', res.data.books);
         return res.books;
       });
-      // return fetch(`${baseURL}` + terminalInput).then(res => res.json()).then((res) => {
-      //   console.log(res.items);
-      //   return res.items; });
-    },
-    book: (parent, args) => {
-      const { id } = args;
-      return fetch('https://www.googleapis.com/books/v1/volumes?q=+intitle:').then(res => res.json());
-    },
-    posts: () => {
-      return fetch(`${baseURL}/posts`).then(res => res.json());
-    },
-    post: (parent, args) => {
-      const { id } = args;
-      return fetch(`${baseURL}/blog/posts/${id}`).then(res => res.json());
     },
   },
 };
     
-// Instantiation of our server
+/** Instantiation of our server */
 const server = new ApolloServer({
   apiKey: process.env.ENGINE_API_KEY,
   typeDefs,
   resolvers,
   link: restLink,
   cache: new InMemoryCache});
-  
-// Instantiate required constructor fields
-const cache = new InMemoryCache();
-const link = new HttpLink({
-  uri: 'http://localhost:4000/',
-});
 
-const client = new ApolloClient({
-  // Provide required constructor fields
-  cache: cache,
-  link: link,
-  fetch: fetch,
-});
-
-client.query({
-  query: gql`
-    query books {
-        id
-        etag
-        volumeInfo{
-          title
-          authors
-          description
-        }
-      }
-    `,
-}).then(result => console.log(result));
-
+/** declaration of our use route*/
 app.use(
   '/graphql',
   graphqlHTTP({
@@ -154,6 +108,7 @@ app.use(
   })
 );
 
+/** declaration*/
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
@@ -162,7 +117,7 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
-// Call the listen method on the instantiation of our server
+/** Call the listen method on the instantiation of our server */
 server.listen().then(({ url }) => {
   console.log(`GraphQL API server ready at ${url}`);
 });
