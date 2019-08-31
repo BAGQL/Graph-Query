@@ -78,17 +78,6 @@ const resolvers = {
         return res.books;
       });
     },
-    book: (parent, args) => {
-      const { id } = args;
-      return fetch('https://www.googleapis.com/books/v1/volumes?q=+intitle:').then(res => res.json());
-    },
-    posts: () => {
-      return fetch(`${baseURL}/posts`).then(res => res.json());
-    },
-    post: (parent, args) => {
-      const { id } = args;
-      return fetch(`${baseURL}/blog/posts/${id}`).then(res => res.json());
-    },
   },
 };
     
