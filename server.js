@@ -13,34 +13,16 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const graphqlHTTP = require('express-graphql');
 const app = express();
-
 // testing above
-
-
 const { ApolloServer, gql } = require('apollo-server');
 const { RestLink } = require('apollo-link-rest');
 const { InMemoryCache } = require('apollo-cache-inmemory');
 const { ApolloClient } = require('apollo-client');
 const { HttpLink } = require('apollo-link-http');
-
 const fetch = require('node-fetch');
 global.fetch = fetch;
 global.Headers = fetch.Headers;
-
 require('dotenv').config();
-
-
-// Dummy data 
-// const books = [
-//   {
-//     title: 'Harry Potter and the Chamber of Secrets',
-//     author: 'J.K. Rowling',
-//   },
-//   {
-//     title: 'Jurassic Park',
-//     author: 'Michael Crichton',
-//   },
-// ];
 
 // Type declaration (in gql lingo)
 const typeDefs = gql`
@@ -79,12 +61,11 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createBook(name: String!): Book!
-    updateBook(title: String!, name: String!): Book
-    deleteBook(title: String!): Book
+    createBook(title: String): Book!
+    updateBook(title: String, author: String): Book!
+    deleteBook(title: String): Book!
   }
 `;
-
 
 // RestLink
 const restLink = new RestLink({
@@ -92,19 +73,21 @@ const restLink = new RestLink({
 });
 
 // Root Resolver Function
-
-const baseURL = `https://www.googleapis.com/books/v1/volumes?q=+intitle:`;
-
-
 const resolvers = {
   Query: {
     books: () => {
-      let userInput = process.argv.slice(2);
+      let terminalInput = '{ books { _id title author } }';
       // let userSearch = document.getElementsByClassName('submitBox').value;
-      return fetch(`${baseURL}` + userInput).then(res => res.json()).then((res) => {
-        console.log(res.items);
-        return res.items; });
-
+      return fetch(`${process.env.DATABASEURL}` + terminalInput).then(res => res.json()).then((res) => {
+        console.log('working!');
+        console.log('1', res);
+        console.log('2', res.data);
+        console.log('3', res.data.books);
+        return res.books;
+      });
+      // return fetch(`${baseURL}` + terminalInput).then(res => res.json()).then((res) => {
+      //   console.log(res.items);
+      //   return res.items; });
     },
     book: (parent, args) => {
       const { id } = args;
@@ -120,7 +103,6 @@ const resolvers = {
   },
 };
     
-
 // Instantiation of our server
 const server = new ApolloServer({
   apiKey: process.env.ENGINE_API_KEY,
@@ -141,15 +123,6 @@ const client = new ApolloClient({
   link: link,
   fetch: fetch,
 });
-
-
-// client.post(
-//   '/graphql',
-//   graphqlHTTP({
-//     schema: typeDefs,
-//     graphiql: false,
-//   }),
-// );
 
 client.query({
   query: gql`
@@ -190,40 +163,6 @@ app.use((error, req, res, next) => {
   const data = error.data;
   res.status(status).json({ message: message, data: data });
 });
-
-mongoose
-  .connect(
-    process.env.MONGODB_URI,  { useNewUrlParser: true }
-  )
-  .then(result => {
-    app.listen(9001);
-  })
-  .catch(err => console.log(err));
-
-// client.post('/searches', (request, response) => {
-//   let userInput = process.argv.slice(2);
-//   // let userSearch = document.getElementsByClassName('submitBox').value;
-//   fetch(`${baseURL}` + userInput).then(res => res.json()).then((res) => {
-  
-//     // console.log(result.body);
-//     // response.send(result.body.items[0].volumeInfo.title);
-//     // response.send(result.body.items);
-//     // book_array = new Book_input(result.body.items[0])
-//     if(res.body.totalItems === 0){
-//       let fail = 'The book you have searched for was not found by the API!';
-//       response.render('pages/searches/error.ejs',{fail});
-//     } else {
-//       let test = res.body.items.map(build_book_display);
-//       response.render('pages/searches/show.ejs',{data:test});
-//       // code for add to database
-//     }
-//   })
-//     .catch(err => {
-//       console.log(err);
-//       response.render('pages/searches/APIerror.ejs',{error: err});
-//     });
-//   // console.log(request.body);
-// });
 
 // Call the listen method on the instantiation of our server
 server.listen().then(({ url }) => {
